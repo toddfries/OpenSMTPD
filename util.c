@@ -1038,3 +1038,9 @@ temp_inet_net_pton_ipv6(const char *src, void *dst, size_t size)
 
 	return bits;
 }
+
+int
+getdtablecount(void)
+{
+	return 5;
+}

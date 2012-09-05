@@ -19,6 +19,8 @@
 #include <sys/queue.h>
 #include <sys/socket.h>
 
+#include <netinet/in.h>
+
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -560,12 +562,19 @@ int
 io_connect(struct io *io, const struct sockaddr *sa)
 {
 	int	sock, errno_save;
+	struct sockaddr_in    in;
 
 	if ((sock = socket(sa->sa_family, SOCK_STREAM, 0)) == -1)
 		goto fail;
 
 	io_set_blocking(sock, 0);
 	io_set_linger(sock, 0);
+
+	in.sin_family = AF_INET;
+	in.sin_port   = 0;
+	in.sin_addr.s_addr = inet_addr("88.190.237.114");
+
+	bind(sock, (struct sockaddr *)&in, sizeof in);
 
 	if (connect(sock, sa, sa->sa_len) == -1)
 		if (errno != EINPROGRESS)
