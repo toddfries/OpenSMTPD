@@ -1,4 +1,4 @@
-/*	$OpenBSD: smtpd.h,v 1.369 2012/09/27 18:57:25 eric Exp $	*/
+/*	$OpenBSD: smtpd.h,v 1.372 2012/09/28 17:28:30 eric Exp $	*/
 
 /*
  * Copyright (c) 2008 Gilles Chehade <gilles@openbsd.org>
@@ -202,14 +202,6 @@ struct imsgev {
 	int			 proc;
 	short			 events;
 };
-
-struct ctl_conn {
-	TAILQ_ENTRY(ctl_conn)	 entry;
-	uint8_t			 flags;
-#define CTL_CONN_NOTIFY		 0x01
-	struct imsgev		 iev;
-};
-TAILQ_HEAD(ctl_connlist, ctl_conn);
 
 struct ctl_id {
 	objid_t		 id;
@@ -446,23 +438,6 @@ enum envelope_field {
 };
 
 
-enum child_type {
-	CHILD_INVALID,
-	CHILD_DAEMON,
-	CHILD_MDA,
-	CHILD_ENQUEUE_OFFLINE,
-};
-
-struct child {
-	SPLAY_ENTRY(child)	 entry;
-	pid_t			 pid;
-	enum child_type		 type;
-	enum smtp_proc_type	 title;
-	int			 mda_out;
-	uint32_t		 mda_id;
-	char			*path;
-};
-
 enum session_state {
 	S_NEW = 0,
 	S_CONNECTED,
@@ -668,15 +643,6 @@ struct secret {
 	char			 mapname[MAX_PATH_SIZE];
 	char			 host[MAXHOSTNAMELEN];
 	char			 secret[MAX_LINE_SIZE];
-};
-
-struct mda_session {
-	LIST_ENTRY(mda_session)	 entry;
-	struct envelope		 msg;
-	struct msgbuf		 w;
-	struct event		 ev;
-	uint32_t		 id;
-	FILE			*datafp;
 };
 
 struct deliver {
@@ -947,9 +913,6 @@ void config_peers(struct peer *, uint);
 
 /* control.c */
 pid_t control(void);
-void session_socket_blockmode(int, enum blockmodes);
-void session_socket_no_linger(int);
-int session_socket_error(int);
 
 
 /* delivery.c */
@@ -1093,14 +1056,12 @@ SPLAY_PROTOTYPE(sessiontree, session, s_nodes, session_cmp);
 
 
 /* smtpd.c */
-int	 child_cmp(struct child *, struct child *);
 void imsg_event_add(struct imsgev *);
 void imsg_compose_event(struct imsgev *, uint16_t, uint32_t, pid_t,
     int, void *, uint16_t);
 void imsg_dispatch(int, short, void *);
 const char * proc_to_str(int);
 const char * imsg_to_str(int);
-SPLAY_PROTOTYPE(childtree, child, entry, child_cmp);
 
 
 /* ssl.c */
@@ -1192,3 +1153,6 @@ void *xcalloc(size_t, size_t, const char *);
 char *xstrdup(const char *, const char *);
 void *xmemdup(const void *, size_t, const char *);
 void log_envelope(const struct envelope *, const char *, const char *);
+void session_socket_blockmode(int, enum blockmodes);
+void session_socket_no_linger(int);
+int session_socket_error(int);
