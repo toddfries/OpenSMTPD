@@ -400,6 +400,20 @@ session_rfc5321_mail_handler(struct session *s, char *args)
 		return 1;
 	}
 
+
+	if (s->s_l->flags & F_STARTTLS_REQUIRE)
+		if (!(s->s_flags & F_SECURE)) {
+			session_respond(s, "530 5.7.0 Must issue a STARTTLS command first");
+			return 1;
+		}
+
+	if (s->s_l->flags & F_AUTH_REQUIRE) {
+		if (!(s->s_flags & F_AUTHENTICATED)) {
+			session_respond(s, "530 5.7.0 Must issue a AUTH command first");
+			return 1;
+		}
+	}
+
 	if (s->s_state != S_HELO) {
 		session_respond(s, "503 5.5.1 Sender already specified");
 		return 1;
