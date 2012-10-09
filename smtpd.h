@@ -80,8 +80,10 @@
 #define F_SMTPS			 0x02
 #define F_AUTH			 0x04
 #define F_SSL			(F_SMTPS|F_STARTTLS)
+#define	F_STARTTLS_REQUIRE     	 0x08
+#define	F_AUTH_REQUIRE		 0x10
 
-#define	F_BACKUP		0x10	/* XXX */
+#define	F_BACKUP		0x20	/* XXX */
 
 #define F_SCERT			0x01
 #define F_CCERT			0x02
