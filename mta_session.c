@@ -1,4 +1,4 @@
-/*	$OpenBSD: mta_session.c,v 1.18 2012/09/27 19:43:29 eric Exp $	*/
+/*	$OpenBSD: mta_session.c,v 1.22 2012/10/07 15:46:38 chl Exp $	*/
 
 /*
  * Copyright (c) 2008 Pierre-Yves Ritschard <pyr@openbsd.org>
@@ -357,7 +357,7 @@ mta_enter_state(struct mta_session *s, int newstate)
 			else
 				sa_set_port(sa, 25);
 
-			iobuf_init(&s->iobuf, 0, 0);
+			iobuf_xinit(&s->iobuf, 0, 0, "mta_enter_state");
 			io_init(&s->io, -1, s, mta_io, &s->iobuf);
 			io_set_timeout(&s->io, 10000);
 			if (io_connect(&s->io, sa) == -1) {
@@ -774,7 +774,7 @@ mta_send(struct mta_session *s, char *fmt, ...)
 
 	log_trace(TRACE_MTA, "mta: %p: >>> %s", s, p);
 
-	iobuf_fqueue(&s->iobuf, "%s\r\n", p);
+	iobuf_xfqueue(&s->iobuf, "mta_send", "%s\r\n", p);
 
 	free(p);
 
@@ -799,11 +799,9 @@ mta_queue_data(struct mta_session *s)
 		if ((ln = fgetln(s->datafp, &len)) == NULL)
 			break;
 		if (ln[len - 1] == '\n')
-			len--;
-		if (*ln == '.')
-			iobuf_queue(&s->iobuf, ".", 1);
-		iobuf_queue(&s->iobuf, ln, len);
-		iobuf_queue(&s->iobuf, "\r\n", 2);
+			ln[len - 1] = '\0';
+		iobuf_xfqueue(&s->iobuf, "mta_queue_data", "%s%s\r\n",
+		    *ln == '.' ? "." : "", ln);
 	}
 
 	if (ferror(s->datafp)) {
@@ -917,8 +915,7 @@ mta_check_loop(FILE *fp)
 			buf[len - 1] = '\0';
 		else {
 			/* EOF without EOL, copy and add the NUL */
-			if ((lbuf = malloc(len + 1)) == NULL)
-				err(1, NULL);
+			lbuf = xmalloc(len + 1, "mta_check_loop");
 			memcpy(lbuf, buf, len);
 			lbuf[len] = '\0';
 			buf = lbuf;

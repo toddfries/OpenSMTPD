@@ -1,4 +1,4 @@
-/*	$OpenBSD: smtpd.h,v 1.372 2012/09/28 17:28:30 eric Exp $	*/
+/*	$OpenBSD: smtpd.h,v 1.381 2012/10/08 20:35:16 gilles Exp $	*/
 
 /*
  * Copyright (c) 2008 Gilles Chehade <gilles@openbsd.org>
@@ -32,6 +32,7 @@
 #define MAX_NAME_SIZE		 64
 
 #define MAX_HOPS_COUNT		 100
+#define	DEFAULT_MAX_BODY_SIZE  	(35*1024*1024)
 
 #define MAX_TAG_SIZE		 32
 
@@ -295,8 +296,14 @@ enum action_type {
 	A_MDA
 };
 
+enum decision {
+	R_REJECT,
+	R_ACCEPT
+};
+
 struct rule {
 	TAILQ_ENTRY(rule)		 r_entry;
+	enum decision			 r_decision;
 	char				 r_tag[MAX_TAG_SIZE];
 	int				 r_accept;
 	struct map			*r_sources;
@@ -307,7 +314,6 @@ struct rule {
 		struct relayhost       	 relayhost;
 	}				 r_value;
 
-	char				*r_user;
 	struct mailaddr			*r_as;
 	objid_t				 r_amap;
 	time_t				 r_qexpire;
@@ -363,7 +369,11 @@ struct expandnode {
 	struct expandnode	*parent;
 	unsigned int		 depth;
 	union {
-		char		 user[MAXLOGNAME];
+		/*
+		 * user field handles both expansion user and system user
+		 * so we MUST make it large enough to fit a mailaddr user
+		 */
+		char		 user[MAX_LOCALPART_SIZE];
 		char		 buffer[MAX_RULEBUFFER_LEN];
 		struct mailaddr	 mailaddr;
 	} 			 u;
@@ -381,7 +391,6 @@ struct envelope {
 	TAILQ_ENTRY(envelope)		entry;
 
 	char				tag[MAX_TAG_SIZE];
-	struct rule			rule;
 
 	uint64_t			session_id;
 	uint64_t			batch_id;
@@ -795,7 +804,8 @@ struct user_backend {
 
 /* delivery_backend */
 struct delivery_backend {
-	void	(*open)(struct deliver *);
+	int			allow_root;
+	void (*open)(struct deliver *);
 };
 
 struct scheduler_info {
@@ -973,8 +983,11 @@ pid_t mda(void);
 
 /* mfa.c */
 pid_t mfa(void);
-int mfa_session_cmp(struct mfa_session *, struct mfa_session *);
-SPLAY_PROTOTYPE(mfatree, mfa_session, nodes, mfa_session_cmp);
+
+
+/* mfa_session.c */
+void mfa_session(struct submit_status *, enum session_state);
+
 
 /* mta.c */
 pid_t mta(void);
@@ -1152,7 +1165,13 @@ void *xmalloc(size_t, const char *);
 void *xcalloc(size_t, size_t, const char *);
 char *xstrdup(const char *, const char *);
 void *xmemdup(const void *, size_t, const char *);
+void iobuf_xinit(struct iobuf *, size_t, size_t, const char *);
+void iobuf_xfqueue(struct iobuf *, const char *, const char *, ...);
 void log_envelope(const struct envelope *, const char *, const char *);
 void session_socket_blockmode(int, enum blockmodes);
 void session_socket_no_linger(int);
 int session_socket_error(int);
+
+/* waitq.c */
+int  waitq_wait(void *, void (*)(void *, void *, void *), void *);
+void waitq_run(void *, void *);
