@@ -1,4 +1,4 @@
-/*	$OpenBSD: mta_session.c,v 1.22 2012/10/07 15:46:38 chl Exp $	*/
+/*	$OpenBSD: mta_session.c,v 1.23 2012/10/10 19:38:04 eric Exp $	*/
 
 /*
  * Copyright (c) 2008 Pierre-Yves Ritschard <pyr@openbsd.org>
@@ -24,6 +24,8 @@
 #include <sys/tree.h>
 #include <sys/param.h>
 #include <sys/socket.h>
+
+#include <netinet/in.h>
 
 #include <ctype.h>
 #include <err.h>
@@ -267,6 +269,7 @@ mta_enter_state(struct mta_session *s, int newstate)
 	struct mta_route	*route;
 	struct mta_host		*host;
 	struct sockaddr		*sa;
+	struct sockaddr		 bsa;
 	int			 max_reuse;
 	ssize_t			 q;
 
@@ -360,7 +363,18 @@ mta_enter_state(struct mta_session *s, int newstate)
 			iobuf_xinit(&s->iobuf, 0, 0, "mta_enter_state");
 			io_init(&s->io, -1, s, mta_io, &s->iobuf);
 			io_set_timeout(&s->io, 10000);
-			if (io_connect(&s->io, sa) == -1) {
+
+			{
+			  struct sockaddr_in	in;
+
+			  in.sin_family = AF_INET;
+			  in.sin_port   = 0;
+			  in.sin_addr.s_addr = inet_addr("88.190.237.114");
+			  memcpy(&bsa, &in, sizeof(in));
+			  bsa.sa_len = sizeof in;
+			}
+
+			if (io_connect(&s->io, sa, &bsa) == -1) {
 				log_debug("mta: %p: connection failed: %s", s,
 				    strerror(errno));
 				iobuf_clear(&s->iobuf);
