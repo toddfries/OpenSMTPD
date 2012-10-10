@@ -1101,3 +1101,20 @@ log_envelope(const struct envelope *evp, const char *extra, const char *status)
 	    extra,
 	    status);
 }
+
+uint64_t
+strtoevpid(const char *s)
+{
+	uint64_t ulval;
+	char	 *ep;
+
+	errno = 0;
+	ulval = strtoull(s, &ep, 16);
+	if (s[0] == '\0' || *ep != '\0')
+		errx(1, "invalid msgid/evpid");
+	if (errno == ERANGE && ulval == ULLONG_MAX)
+		errx(1, "invalid msgid/evpid");
+	if (ulval == 0)
+		errx(1, "invalid msgid/evpid");
+	return (ulval);
+}
