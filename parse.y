@@ -265,13 +265,8 @@ ssl		: SMTPS				{ $$ = F_SMTPS; }
 		| /* Empty */			{ $$ = 0; }
 		;
 
-<<<<<<< HEAD
-auth		: AUTH  			{ $$ = F_AUTH; }
-		| AUTH_REQUIRE			{ $$ = F_AUTH|F_AUTH_REQUIRE; }
-=======
 auth		: AUTH  			{ $$ = F_AUTH|F_AUTH_REQUIRE; }
 		| AUTH_OPTIONAL			{ $$ = F_AUTH; }
->>>>>>> master
 		| /* empty */			{ $$ = 0; }
 		;
 
@@ -372,14 +367,7 @@ main		: QUEUE INTERVAL interval	{
 			}
 
 			cert = ($6 != NULL) ? $6 : $3;
-<<<<<<< HEAD
-			flags = $5;
-
-			if ($7)
-				flags |= $7;
-=======
 			flags = $5 | $7; /* ssl | auth */
->>>>>>> master
 
 			if ($5 && ssl_load_certfile(cert, F_SCERT) < 0) {
 				yyerror("cannot load certificate: %s", cert);
@@ -952,11 +940,7 @@ lookup(char *s)
 		{ "all",		ALL },
 		{ "as",			AS },
 		{ "auth",		AUTH },
-<<<<<<< HEAD
-		{ "auth-require",      	AUTH_REQUIRE },
-=======
 		{ "auth-optional",     	AUTH_OPTIONAL },
->>>>>>> master
 		{ "backup",		BACKUP },
 		{ "certificate",	CERTIFICATE },
 		{ "cipher",		CIPHER },
