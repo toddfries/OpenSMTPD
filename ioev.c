@@ -19,8 +19,6 @@
 #include <sys/queue.h>
 #include <sys/socket.h>
 
-#include <netinet/in.h>
-
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
