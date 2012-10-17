@@ -197,10 +197,10 @@ mfa(void)
 
 	purge_config(PURGE_EVERYTHING);
 
-	if ((env->sc_pw =  getpwnam(SMTPD_FILTER_USER)) == NULL)
-		if ((env->sc_pw =  getpwnam(SMTPD_USER)) == NULL)
-			fatalx("unknown user " SMTPD_FILTER_USER);
-	pw = env->sc_pw;
+	if (env->sc_pw_filter)
+		pw = env->sc_pw_filter;
+	else
+		pw = env->sc_pw;
 
 	smtpd_process = PROC_MFA;
 	setproctitle("%s", env->sc_title[smtpd_process]);

@@ -398,7 +398,8 @@ lka_expand_format(char *buf, size_t len, const struct envelope *ep)
 	struct mta_user u;
 	char lbuffer[MAX_RULEBUFFER_LEN];
 	char tmpbuf[MAX_RULEBUFFER_LEN];
-	
+
+	log_debug("lka_expand_format: ##1");
 	bzero(lbuffer, sizeof (lbuffer));
 	pbuf = lbuffer;
 
@@ -500,10 +501,11 @@ copy:
 		lret = 1;
 		*pbuf = *p;
 	}
-	
+
+	log_debug("lka_expand_format: ##2");	
 	/* + 1 to include the NUL byte. */
 	memcpy(buf, lbuffer, ret + 1);
-
+	log_debug("lka_expand_format: ##3: ret=%d", ret);
 	return ret;
 }
 

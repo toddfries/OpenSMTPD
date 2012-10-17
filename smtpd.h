@@ -47,6 +47,7 @@
 #define SMTPD_QUEUE_EXPIRY	 (4 * 24 * 60 * 60)
 #define SMTPD_USER		 "_smtpd"
 #define SMTPD_FILTER_USER      	 "_smtpmfa"
+#define SMTPD_QUEUE_USER      	 "_smtpqueue"
 #define SMTPD_SOCKET		 "/var/run/smtpd.sock"
 #define SMTPD_BANNER		 "220 %s ESMTP OpenSMTPD"
 #define SMTPD_SESSION_TIMEOUT	 300
@@ -577,6 +578,8 @@ struct smtpd {
 	int					 sc_instance;
 	char					*sc_title[PROC_COUNT];
 	struct passwd				*sc_pw;
+	struct passwd				*sc_pw_filter;
+	struct passwd				*sc_pw_queue;
 	char					 sc_hostname[MAXHOSTNAMELEN];
 	struct queue_backend			*sc_queue;
 	struct compress_backend			*sc_compress;

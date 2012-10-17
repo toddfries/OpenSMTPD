@@ -385,8 +385,14 @@ fsqueue_init(int server)
 		if (strlcat(path, paths[n], sizeof(path)) >= sizeof(path))
 			errx(1, "path too long %s%s", PATH_SPOOL, paths[n]);
 
-		if (ckdir(path, 0700, env->sc_pw->pw_uid, 0, server) == 0)
-			ret = 0;
+		if (env->sc_pw_queue) {
+			if (ckdir(path, 0700, env->sc_pw_queue->pw_uid, 0, server) == 0)
+				ret = 0;
+		}
+		else {
+			if (ckdir(path, 0700, env->sc_pw->pw_uid, 0, server) == 0)
+				ret = 0;
+		}
 	}
 
 	if (gettimeofday(&tv, NULL) == -1)
