@@ -570,9 +570,6 @@ main(int argc, char *argv[])
 	if ((env->sc_pw =  getpwnam(SMTPD_USER)) == NULL)
 		errx(1, "unknown user %s", SMTPD_USER);
 
-	env->sc_pw_filter = getpwnam(SMTPD_FILTER_USER);
-	env->sc_pw_queue  = getpwnam(SMTPD_QUEUE_USER);
-
 	if (ckdir(PATH_SPOOL, 0711, 0, 0, 1) == 0)
 		errx(1, "error in spool directory setup");
 	if (ckdir(PATH_SPOOL PATH_OFFLINE, 01777, 0, 0, 1) == 0)
