@@ -1,8 +1,8 @@
-#	$OpenBSD: Makefile,v 1.9 2009/03/18 01:56:52 jacekm Exp $
+#	$OpenBSD: Makefile,v 1.57 2012/10/14 11:58:23 gilles Exp $
 
-.include <bsd.own.mk>
+.PATH:		${.CURDIR}/.. /usr/src/lib/libc/asr
 
-SUBDIR = makemap smtpd smtpctl
+PROG=		smtpd
 
 SRCS=		aliases.c auth.c bounce.c compress_backend.c config.c	\
 		control.c delivery.c dns.c envelope.c			\
@@ -39,8 +39,7 @@ BINDIR=		/usr/sbin
 
 LDADD+=		-levent -lutil -lssl -lcrypto -lm -lz
 DPADD+=		${LIBEVENT} ${LIBUTIL} ${LIBSSL} ${LIBCRYPTO} ${LIBM} ${LIBZ}
-CFLAGS+=	-g3 -ggdb -I${.CURDIR}/.. -I${.CURDIR}/../../../lib/libc/asr
-CFLAGS+=	-I/usr/src/lib/libc/asr
+CFLAGS+=	-g3 -ggdb -I${.CURDIR}/.. -I/usr/src/lib/libc/asr
 CFLAGS+=	-Wall -Wstrict-prototypes -Wmissing-prototypes
 CFLAGS+=	-Wmissing-declarations
 CFLAGS+=	-Wshadow -Wpointer-arith -Wcast-qual
