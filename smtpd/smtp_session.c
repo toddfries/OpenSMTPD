@@ -306,18 +306,6 @@ session_rfc1652_mail_handler(struct session *s, char *args)
 		return 1;
 	}
 
-	if (s->s_l->flags & F_STARTTLS_REQUIRE)
-		if (!(s->s_flags & F_SECURE)) {
-			session_respond(s, "530 5.7.0 Must issue a STARTTLS command first");
-			return 1;
-		}
-
-	if (s->s_l->flags & F_AUTH_REQUIRE)
-		if (!(s->s_flags & F_AUTHENTICATED)) {
-			session_respond(s, "530 5.7.0 Must issue a AUTH command first");
-			return 1;
-		}
-
 	for (body = strrchr(args, ' '); body != NULL;
 		body = strrchr(args, ' ')) {
 		*body++ = '\0';
