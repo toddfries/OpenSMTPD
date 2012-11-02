@@ -1054,12 +1054,6 @@ temp_inet_net_pton_ipv6(const char *src, void *dst, size_t size)
 	return bits;
 }
 
-int
-getdtablecount(void)
-{
-	return 5;
-}
-
 void
 log_envelope(const struct envelope *evp, const char *extra, const char *status)
 {
