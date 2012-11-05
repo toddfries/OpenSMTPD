@@ -700,6 +700,7 @@ struct mfa_session {
 };
 
 struct mta_session;
+struct mta_mxlist;
 
 struct mta_route {
 	SPLAY_ENTRY(mta_route)	 entry;
@@ -712,6 +713,8 @@ struct mta_route {
 	char			*cert;
 	char			*auth;
 	void			*ssl;
+
+	struct mta_mxlist	*mxlist;
 
 	/* route limits	*/
 	int			 maxconn; 	/* in parallel */
